@@ -9,7 +9,7 @@ export const InventoryCell = ({ sortedInventory }) => {
     return;
   }
   return (
-    <TableCell component="th" scope="row">
+    <TableCell style={{maxWidth: '.3vw'}} colSpan={1} component="th" scope="row">
       {jsonInventory.map((item) => item.label && `${item.label} `)}
     </TableCell>
   );

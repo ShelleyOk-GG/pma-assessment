@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
   Table,
@@ -13,7 +13,6 @@ import {
   TablePagination,
   IconButton,
 } from "@material-ui/core";
-import { InventoryCell } from "./InventoryCell";
 import { KeyboardArrowLeft, KeyboardArrowRight } from "@material-ui/icons";
 
 const useStyles = makeStyles({
@@ -21,6 +20,8 @@ const useStyles = makeStyles({
     minWidth: 650,
   },
 });
+
+const ROW_HEIGHT = 53;
 
 export const UserGrid = ({ users }) => {
   const classes = useStyles();
@@ -31,26 +32,24 @@ export const UserGrid = ({ users }) => {
   );
   const [page, setPage] = useState(0);
 
-  console.log(currentPageUsers.length);
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = useCallback((newPage) => {
     setPage(newPage);
     setCurrentPageUsers(
       users.slice(newPage * rowsPerPage, newPage * rowsPerPage + rowsPerPage)
     );
-  };
+  }, [rowsPerPage, users]);
 
-  const handleChangeRowsPerPage = (event) => {
+  const handleChangeRowsPerPage = useCallback((event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-  };
+    setCurrentPageUsers(users.slice(0, event.target.value));
+  }, [users]);
 
-  const emptyRows = rowsPerPage- currentPageUsers.length
-
-  console.log("***", rowsPerPage- currentPageUsers.length)
+  const emptyRows = rowsPerPage - currentPageUsers.length;
 
   return (
     <TableContainer component={Paper}>
-      <Table className={classes.table} aria-label="simple table">
+      <Table className={classes.table} aria-label="PMA User Table">
         <TableHead>
           <TableRow>
             <TableCell>First Name</TableCell>
@@ -63,7 +62,7 @@ export const UserGrid = ({ users }) => {
         </TableHead>
         <TableBody>
           {currentPageUsers.map((user) => (
-            <TableRow key={Math.random()}>
+            <TableRow style={{ height: ROW_HEIGHT }} key={user.id}>
               <TableCell component="th" scope="row">
                 {user.firstname}
               </TableCell>
@@ -79,20 +78,18 @@ export const UserGrid = ({ users }) => {
               <TableCell component="th" scope="row">
                 {user.job_grade}
               </TableCell>
-              <InventoryCell sortedInventory={user.sortedInventory} />
+              {/* <InventoryCell sortedInventory={user.sortedInventory} /> */}
             </TableRow>
           ))}
-          {emptyRows> 0 && (
-            <TableRow
-              style={{ height: 53 * emptyRows}}
-            >
-              <TableCell colSpan={6} />
+          {emptyRows > 0 && (
+            <TableRow style={{ height: ROW_HEIGHT * emptyRows }}>
+              <TableCell />
             </TableRow>
           )}
           <TableRow>
             <TablePagination
-              rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}
-              colSpan={3}
+              rowsPerPageOptions={[5, 10, 25]}
+              colSpan={6}
               count={users.length}
               rowsPerPage={rowsPerPage}
               page={page}
@@ -114,12 +111,12 @@ export const UserGrid = ({ users }) => {
 const TablePaginationActions = ({ count, page, rowsPerPage, onChangePage }) => {
   const theme = useTheme();
 
-  const handleBackButtonClick = (event) => {
-    onChangePage(event, page - 1);
+  const handleBackButtonClick = () => {
+    onChangePage(page - 1);
   };
 
-  const handleNextButtonClick = (event) => {
-    onChangePage(event, page + 1);
+  const handleNextButtonClick = () => {
+    onChangePage(page + 1);
   };
 
   return (
