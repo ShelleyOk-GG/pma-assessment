@@ -12,9 +12,10 @@ import {
   TablePagination,
   IconButton,
   TableCell,
-  Collapse,
+ 
 } from "@material-ui/core";
 import { KeyboardArrowLeft, KeyboardArrowRight } from "@material-ui/icons";
+import { UserRow } from "./UserRow";
 
 const useStyles = makeStyles({
   table: {
@@ -23,7 +24,7 @@ const useStyles = makeStyles({
   },
 });
 
-const ROW_HEIGHT = 53;
+export const ROW_HEIGHT = 53;
 
 export const UserGrid = ({ users }) => {
   const classes = useStyles();
@@ -133,54 +134,6 @@ const TablePaginationActions = ({ count, page, rowsPerPage, onChangePage }) => {
           <KeyboardArrowRight />
         )}
       </IconButton>
-    </>
-  );
-};
-
-const UserRow = ({ user }) => {
-  const [open, setOpen] = useState(false);
-
-  let jsonInventory = [];
-  try {
-    jsonInventory = JSON.parse(user.sortedInventory);
-  } catch (e) {
-    console.log(e);
-  }
-  if (!jsonInventory) {
-    return;
-  }
-
-  return (
-    <>
-      <TableRow style={{ height: ROW_HEIGHT }} onClick={() => setOpen(!open)}>
-        <TableCell component="th" scope="row">
-          {user.firstname}
-        </TableCell>
-        <TableCell component="th" scope="row">
-          {user.lastname}
-        </TableCell>
-        <TableCell component="th" scope="row">
-          {user.last_logged}
-        </TableCell>
-        <TableCell component="th" scope="row">
-          {user.job}
-        </TableCell>
-        <TableCell component="th" scope="row">
-          {user.job_grade}
-        </TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-          <Collapse in={open} timeout="auto" unmountOnExit>
-            <TableCell colSpan={6}>Sorted Inventory</TableCell>
-            <TableCell colSpan={6}>
-              {!!jsonInventory.length
-                ? jsonInventory.map((item) => item.label && `${item.label} `)
-                : "No items in inventory"}
-            </TableCell>
-          </Collapse>
-        </TableCell>
-      </TableRow>
     </>
   );
 };
