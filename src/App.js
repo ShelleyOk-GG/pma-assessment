@@ -1,31 +1,51 @@
-import React, { useState,  useEffect} from 'react'
-import {UserGrid} from './components/UserGrid'
-import {fetchUsers} from './AppClient'
-import { testData } from './test';
+/** @format */
 
+import React, { useState, useEffect } from "react";
+import { UserGrid } from "./components/UserGrid";
+import { fetchUsers } from "./AppClient";
+import { Typography } from "@material-ui/core";
 
 export const App = () => {
-
-  const [users, setUsers] = useState([])
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
-   console.log(users.length)
-   try{
-    fetchUsers().then((response)=> {
-     setUsers(response.data)
-    })
-  } catch(e){console.log(e)}
-  }, [])
+    try {
+      fetchUsers().then((response) => {
+        setUsers(response.data);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }, []);
 
-  if(!users.length){
-    return <div>loading</div>
+  if (!users.length) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flex: 1,
+        flexDirection: "column",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flex: 1,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Typography variant="h4">Loading...</Typography>
+      </div>
+    </div>
+  );
   }
 
-
   return (
-    <div>
-      PMA User Browser
-      <UserGrid users={users}/>
+    <div style={{height: '100%', width: '100%'}}>
+      <Typography variant="h4">PMA User Browser</Typography>
+      <UserGrid users={users} />
     </div>
   );
 };

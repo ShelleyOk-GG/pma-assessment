@@ -5,19 +5,21 @@ import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
   Table,
   TableBody,
-  TableCell,
   TableContainer,
   TableHead,
   TableRow,
   Paper,
   TablePagination,
   IconButton,
+  TableCell,
+  Collapse,
 } from "@material-ui/core";
 import { KeyboardArrowLeft, KeyboardArrowRight } from "@material-ui/icons";
 
 const useStyles = makeStyles({
   table: {
     minWidth: 650,
+    height: "100%",
   },
 });
 
@@ -32,18 +34,24 @@ export const UserGrid = ({ users }) => {
   );
   const [page, setPage] = useState(0);
 
-  const handleChangePage = useCallback((newPage) => {
-    setPage(newPage);
-    setCurrentPageUsers(
-      users.slice(newPage * rowsPerPage, newPage * rowsPerPage + rowsPerPage)
-    );
-  }, [rowsPerPage, users]);
+  const handleChangePage = useCallback(
+    (newPage) => {
+      setPage(newPage);
+      setCurrentPageUsers(
+        users.slice(newPage * rowsPerPage, newPage * rowsPerPage + rowsPerPage)
+      );
+    },
+    [rowsPerPage, users]
+  );
 
-  const handleChangeRowsPerPage = useCallback((event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-    setCurrentPageUsers(users.slice(0, event.target.value));
-  }, [users]);
+  const handleChangeRowsPerPage = useCallback(
+    (event) => {
+      setRowsPerPage(parseInt(event.target.value, 10));
+      setPage(0);
+      setCurrentPageUsers(users.slice(0, event.target.value));
+    },
+    [users]
+  );
 
   const emptyRows = rowsPerPage - currentPageUsers.length;
 
@@ -57,29 +65,11 @@ export const UserGrid = ({ users }) => {
             <TableCell>Last Logged</TableCell>
             <TableCell>Job</TableCell>
             <TableCell>Job Grade</TableCell>
-            <TableCell>Sorted Inventory</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {currentPageUsers.map((user) => (
-            <TableRow style={{ height: ROW_HEIGHT }} key={user.id}>
-              <TableCell component="th" scope="row">
-                {user.firstname}
-              </TableCell>
-              <TableCell component="th" scope="row">
-                {user.lastname}
-              </TableCell>
-              <TableCell component="th" scope="row">
-                {user.last_logged}
-              </TableCell>
-              <TableCell component="th" scope="row">
-                {user.job}
-              </TableCell>
-              <TableCell component="th" scope="row">
-                {user.job_grade}
-              </TableCell>
-              {/* <InventoryCell sortedInventory={user.sortedInventory} /> */}
-            </TableRow>
+            <UserRow user={user} />
           ))}
           {emptyRows > 0 && (
             <TableRow style={{ height: ROW_HEIGHT * emptyRows }}>
@@ -111,13 +101,13 @@ export const UserGrid = ({ users }) => {
 const TablePaginationActions = ({ count, page, rowsPerPage, onChangePage }) => {
   const theme = useTheme();
 
-  const handleBackButtonClick = () => {
+  const handleBackButtonClick = useCallback(() => {
     onChangePage(page - 1);
-  };
+  }, [onChangePage, page]);
 
-  const handleNextButtonClick = () => {
+  const handleNextButtonClick = useCallback(() => {
     onChangePage(page + 1);
-  };
+  }, [onChangePage, page]);
 
   return (
     <>
@@ -143,6 +133,54 @@ const TablePaginationActions = ({ count, page, rowsPerPage, onChangePage }) => {
           <KeyboardArrowRight />
         )}
       </IconButton>
+    </>
+  );
+};
+
+const UserRow = ({ user }) => {
+  const [open, setOpen] = useState(false);
+
+  let jsonInventory = [];
+  try {
+    jsonInventory = JSON.parse(user.sortedInventory);
+  } catch (e) {
+    console.log(e);
+  }
+  if (!jsonInventory) {
+    return;
+  }
+
+  return (
+    <>
+      <TableRow style={{ height: ROW_HEIGHT }} onClick={() => setOpen(!open)}>
+        <TableCell component="th" scope="row">
+          {user.firstname}
+        </TableCell>
+        <TableCell component="th" scope="row">
+          {user.lastname}
+        </TableCell>
+        <TableCell component="th" scope="row">
+          {user.last_logged}
+        </TableCell>
+        <TableCell component="th" scope="row">
+          {user.job}
+        </TableCell>
+        <TableCell component="th" scope="row">
+          {user.job_grade}
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <TableCell colSpan={6}>Sorted Inventory</TableCell>
+            <TableCell colSpan={6}>
+              {!!jsonInventory.length
+                ? jsonInventory.map((item) => item.label && `${item.label} `)
+                : "No items in inventory"}
+            </TableCell>
+          </Collapse>
+        </TableCell>
+      </TableRow>
     </>
   );
 };
