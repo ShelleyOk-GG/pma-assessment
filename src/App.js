@@ -19,33 +19,35 @@ export const App = () => {
   }, []);
 
   if (!users.length) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        flex: 1,
-        flexDirection: "column",
-      }}
-    >
+    return (
       <div
-        style={{
-          display: "flex",
-          flex: 1,
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
+        style={styles.loadingContainer}
       >
-        <Typography variant="h4">Loading...</Typography>
+        <div
+          style={styles.loadingContent}
+        >
+          <Typography variant="h4">Loading...</Typography>
+        </div>
       </div>
-    </div>
-  );
+    );
   }
 
   return (
-    <div style={{height: '100%', width: '100%'}}>
-      <Typography variant="h4">PMA User Browser</Typography>
+    <div style={styles.appWrapper}>
+      <Typography gutterBottom variant="h5">PMA User Browser</Typography>
       <UserGrid users={users} />
     </div>
   );
+};
+
+const styles = {
+  appWrapper: { height: "100%", width: "100%", padding: 20 },
+  loadingContent: {
+    display: "flex",
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingContainer: { display: "flex", flex: 1, flexDirection: "column" },
 };
